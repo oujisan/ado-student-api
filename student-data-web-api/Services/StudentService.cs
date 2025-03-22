@@ -32,15 +32,6 @@ namespace student_data_web_api.Services
             return true;
         }
 
-        public bool IsEmailExists(Student student, int id)
-        {
-            return _studentRepository.IsEmailExists(student, id);
-        }
-        public bool IsNimExists(Student student, int id)
-        {
-            return _studentRepository.IsNimExists(student, id);
-        }
-
         public List<Student> GetAll()
         {
             return _studentRepository.GetAll();
@@ -49,6 +40,16 @@ namespace student_data_web_api.Services
         public Student GetById(int id)
         {
             return _studentRepository.GetById(id);
+        }
+
+        public Student GetByEmail(string email)
+        {
+            return _studentRepository.GetByEmail(email);
+        }
+
+        public Student GetByNim(string nim)
+        {
+            return _studentRepository.GetByNim(nim);
         }
 
         public Student Add(Student student)

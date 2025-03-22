@@ -6,13 +6,11 @@ namespace student_data_web_api.Services
     {
         List<Student> GetAll();
         Student GetById(int id);
+        Student GetByEmail(string email);
+        Student GetByNim(string nim);
         Student Add(Student student);
         Student Update(Student student, int id);
         bool? Delete(int id);
-
-        //Check
         bool isValidData(Student student);
-        bool IsEmailExists(Student student, int id);
-        bool IsNimExists(Student student, int id);
     }
 }

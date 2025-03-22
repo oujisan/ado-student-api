@@ -3,6 +3,7 @@ using student_data_web_api.Repositories;
 using student_data_web_api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace student_data_web_api.Controllers
@@ -17,6 +18,7 @@ namespace student_data_web_api.Controllers
             _studentService = studentService;
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult<List<Student>> GetAll()
         {
@@ -28,7 +30,8 @@ namespace student_data_web_api.Controllers
             return Ok(students);
         }
 
-        [HttpGet("{id}")]
+        [Authorize(Roles ="Admin")]
+        [HttpGet("{id}"), Authorize]
         public ActionResult<Student> GetById(int id)
         {
             var student = _studentService.GetById(id);
@@ -39,19 +42,19 @@ namespace student_data_web_api.Controllers
             return Ok(student);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("add")]
         public ActionResult<Student> Add([FromBody] Models.Student student)
         {
-            if (_studentService.IsEmailExists(student, student.Student_id))
+            if (_studentService.GetByEmail(student.Email) == null)
             {
-                return BadRequest(new { message = "This email has already been used." });
+                return BadRequest(new { message = "This Email has already been used." });
             }
-            if (_studentService.IsNimExists(student, student.Student_id))
+            if (_studentService.GetByNim(student.Nim) == null)
             {
                 return BadRequest(new { message = "This NIM has already been used." });
 
             }
-
             var newStudent = _studentService.Add(student);
             if (newStudent == null)
             {
@@ -60,19 +63,19 @@ namespace student_data_web_api.Controllers
             return Ok(newStudent);
         }
 
-        [HttpPut("update/{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("update/{id}"), Authorize]
         public ActionResult<Student> Update(int id, [FromBody] Models.Student student)
         {
-            var checkStudentExist = _studentService.GetById(id);
-            if (checkStudentExist == null)
+            if (_studentService.GetById(id) == null)
             {
                 return BadRequest(new {message="ID student not found"});
             }
-            if (_studentService.IsEmailExists(student, id))
+            if (_studentService.GetByEmail(student.Email) == null)
             {
-                return BadRequest(new { message = "This email has already been used." });
+                return BadRequest(new { message = "This Email has already been used." });
             }
-            if (_studentService.IsNimExists(student, id))
+            if (_studentService.GetByNim(student.Nim) == null)
             {
                 return BadRequest(new { message = "This NIM has already been used." });
 
@@ -86,7 +89,8 @@ namespace student_data_web_api.Controllers
             return Ok(updatedStudent);
         }
 
-        [HttpDelete("delete/{id}")]
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("delete/{id}"), Authorize]
         public ActionResult DeleteStudent(int id)
         {
             var isDeleted = _studentService.Delete(id);

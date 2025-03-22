@@ -33,7 +33,8 @@ namespace student_data_web_api.Repositories
                             Prodi = reader.GetString(3),
                             Semester = reader.GetInt32(4),
                             Email = reader.GetString(5),
-                            Password = reader.GetString(6)
+                            Password = reader.GetString(6),
+                            isAdmin = reader.GetBoolean(7)
                         });
                     }
                 }
@@ -67,7 +68,8 @@ namespace student_data_web_api.Repositories
                                 Prodi = reader.GetString(3),
                                 Semester = reader.GetInt32(4),
                                 Email = reader.GetString(5),
-                                Password = reader.GetString(6)
+                                Password = reader.GetString(6),
+                                isAdmin = reader.GetBoolean(7)
                             };
                         }
                     }
@@ -80,9 +82,81 @@ namespace student_data_web_api.Repositories
             return student;
         }
 
+        public Student GetByEmail(string email)
+        {
+            Student student = null;
+            string query = "SELECT * FROM users.students WHERE email = @Email";
+            using (SqlDbHelper dbHelper = new SqlDbHelper(_connectionString))
+                try
+                {
+                    using (NpgsqlCommand command = dbHelper.NpgsqlCommand(query))
+                    {
+                        command.Parameters.AddWithValue("@email", email);
+                        using (NpgsqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                student = new Student
+                                {
+                                    Student_id = reader.GetInt32(0),
+                                    Name = reader.GetString(1),
+                                    Nim = reader.GetString(2),
+                                    Prodi = reader.GetString(3),
+                                    Semester = reader.GetInt32(4),
+                                    Email = reader.GetString(5),
+                                    Password = reader.GetString(6),
+                                    isAdmin = reader.GetBoolean(7)
+                                };
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _errorMessage = ex.Message;
+                }
+            return student;
+        }
+
+        public Student GetByNim(string nim)
+        {
+            Student student = null;
+            string query = "SELECT * FROM users.students WHERE nim = @nim";
+            using (SqlDbHelper dbHelper = new SqlDbHelper(_connectionString))
+                try
+                {
+                    using (NpgsqlCommand command = dbHelper.NpgsqlCommand(query))
+                    {
+                        command.Parameters.AddWithValue("@nim", nim);
+                        using (NpgsqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                student = new Student
+                                {
+                                    Student_id = reader.GetInt32(0),
+                                    Name = reader.GetString(1),
+                                    Nim = reader.GetString(2),
+                                    Prodi = reader.GetString(3),
+                                    Semester = reader.GetInt32(4),
+                                    Email = reader.GetString(5),
+                                    Password = reader.GetString(6),
+                                    isAdmin = reader.GetBoolean(7)
+                                };
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _errorMessage = ex.Message;
+                }
+            return student;
+        }
+
         public Student Add(Student student)
         {
-            string query = "INSERT INTO users.students (name, nim, prodi, semester, email, password) VALUES (@name, @nim, @prodi, @semester, @email, @password)";
+            string query = "INSERT INTO users.students (name, nim, prodi, semester, email, password, isadmin) VALUES (@name, @nim, @prodi, @semester, @email, @password, @isadmin)";
             using (SqlDbHelper dbHelper = new SqlDbHelper(_connectionString))
                 try
                 {
@@ -94,6 +168,7 @@ namespace student_data_web_api.Repositories
                         command.Parameters.AddWithValue("@semester", student.Semester);
                         command.Parameters.AddWithValue("@email", student.Email);
                         command.Parameters.AddWithValue("@password", student.Password);
+                        command.Parameters.AddWithValue("@isadmin", student.isAdmin);
                         command.ExecuteNonQuery();
                     }
                 }
@@ -106,7 +181,7 @@ namespace student_data_web_api.Repositories
 
         public Student Update(Student student, int id)
         {
-            string query = "UPDATE users.students SET name=@name, nim=@nim, prodi=@prodi, semester=@semester, email=@email, password=@password WHERE student_id=@id";
+            string query = "UPDATE users.students SET name=@name, nim=@nim, prodi=@prodi, semester=@semester, email=@email, password=@password, isadmin=@isadmin WHERE student_id=@id";
             using (SqlDbHelper dbHelper = new SqlDbHelper(_connectionString))
                 try
                 {
@@ -119,6 +194,7 @@ namespace student_data_web_api.Repositories
                         command.Parameters.AddWithValue("@semester", student.Semester);
                         command.Parameters.AddWithValue("@email", student.Email);
                         command.Parameters.AddWithValue("@password", student.Password);
+                        command.Parameters.AddWithValue("@isadmin", student.isAdmin);
                         command.ExecuteNonQuery();
                     }
                 }
@@ -152,53 +228,6 @@ namespace student_data_web_api.Repositories
                     return false;
                 }
             return true;
-        }
-
-        public bool IsEmailExists(Student student, int id)
-        {
-            bool result = false;
-            string query = "SELECT COUNT(*) FROM users.students WHERE email = @Email AND student_id <> @Id";
-
-            try
-            {
-                using (SqlDbHelper dbHelper = new SqlDbHelper(_connectionString))
-                using (NpgsqlCommand command = dbHelper.NpgsqlCommand(query))
-                {
-                    command.Parameters.AddWithValue("@Email", student.Email);
-                    command.Parameters.AddWithValue("@Id", id);
-
-                    result = (long)command.ExecuteScalar() > 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                _errorMessage = ex.Message;
-            }
-
-            return result;
-        }
-
-
-        public bool IsNimExists(Student student, int id)
-        {
-            bool result = false;
-            string query = "SELECT COUNT(*) FROM users.students WHERE nim = @Nim AND student_id <> @Id";
-            using (SqlDbHelper dbHelper = new SqlDbHelper(_connectionString))
-            try
-            {
-                using (NpgsqlCommand command = dbHelper.NpgsqlCommand(query))
-                {
-                    command.Parameters.AddWithValue("@Nim", student.Nim);
-                    command.Parameters.AddWithValue("@Id", id);
-
-                    result = (long)command.ExecuteScalar() > 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                _errorMessage = ex.Message;
-            }
-            return result;
         }
     }
 }
