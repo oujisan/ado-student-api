@@ -24,11 +24,11 @@ namespace student_data_web_api.Controllers
         [HttpPost("register")]
         public ActionResult Register([FromBody] Models.Student student)
         {
-            if (_studentService.GetByEmail(student.Email) == null)
+            if (_studentService.GetByEmail(student.Email) != null)
             {
                 return BadRequest(new { message = "This Email has already been used." });
             }
-            if (_studentService.GetByNim(student.Nim) == null)
+            if (_studentService.GetByNim(student.Nim) != null)
             {
                 return BadRequest(new { message = "This NIM has already been used." });
 
